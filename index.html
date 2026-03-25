@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="title" content="Boundary-Aware Instance Segmentation in Microscopy Imaging - ISBI 2026">
+  <meta name="description" content="Prompt-free cell instance segmentation via signed distance functions and a boundary-aware Modified Hausdorff loss for improved separation of touching cells in dense microscopy.">
+  <meta name="keywords" content="Cell Instance Segmentation, Microscopy Imaging, Signed Distance Function, Modified Hausdorff Distance, Boundary-Aware Loss, U-Net, ISBI 2026, Deep Learning">
+  <meta name="author" content="Thomas Mendelson, Joshua Francois, Galit Lahav, Tammy Riklin Raviv">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+
+<!--  <meta property="og:type" content="article">-->
+<!--  <meta property="og:site_name" content="Ben-Gurion University of the Negev / Harvard Medical School">-->
+  <meta property="og:title" content="Boundary-Aware Instance Segmentation in Microscopy Imaging">
+  <meta property="og:description" content="Prompt-free cell instance segmentation via signed distance functions and a boundary-aware Modified Hausdorff loss for improved separation of touching cells in dense microscopy.">
+  <meta property="og:url" content="https://ThomasMendelson.github.io/BAISeg/">
+  <meta property="og:image" content="https://github.com/doronser/hyda-project-page/tree/master/static/images/training_pipeline_with_element-wise.png"> <!-- todo -->
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+<!--  <meta property="og:image:alt" content="Boundary-Aware Instance Segmentation in Microscopy Imaging - Research Preview">-->
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Boundary-Aware Instance Segmentation in Microscopy Imaging">
+  <meta name="twitter:description" content="Prompt-free cell instance segmentation via signed distance functions and a boundary-aware Modified Hausdorff loss for improved separation of touching cells in dense microscopy - accepted to ISBI 2026">
+  <meta name="twitter:image" content="https://github.com/doronser/hyda-project-page/tree/master/static/images/training_pipeline_with_element-wise.png"> <!-- todo -->
+<!--  <meta name="twitter:image:alt" content="Boundary-Aware Instance Segmentation in Microscopy Imaging - Research Preview">-->
+
+  <meta name="citation_title" content="Boundary-Aware Instance Segmentation in Microscopy Imaging">
+  <meta name="citation_author" content="Mendelson, Thomas">
+  <meta name="citation_author" content="Francois, Joshua">
+  <meta name="citation_author" content="Lahav, Galit">
+  <meta name="citation_author" content="Riklin Raviv, Tammy">
+  <meta name="citation_publication_date" content="2026">
+  <meta name="citation_conference_title" content="IEEE International Symposium on Biomedical Imaging (ISBI)">
+<!--  <meta name="citation_pdf_url" content="https://YOUR_USERNAME.github.io/YOUR_REPO/static/pdfs/paper.pdf">&lt;!&ndash; todo &ndash;&gt;-->
+
+<!--  <meta name="theme-color" content="#2563eb">-->
+<!--  <meta name="msapplication-TileColor" content="#2563eb">-->
+<!--  <meta name="apple-mobile-web-app-capable" content="yes">-->
+<!--  <meta name="apple-mobile-web-app-status-bar-style" content="default">-->
+
+<!--  <link rel="preconnect" href="https://fonts.googleapis.com">-->
+<!--  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>-->
+<!--  <link rel="preconnect" href="https://ajax.googleapis.com">-->
+<!--  <link rel="preconnect" href="https://documentcloud.adobe.com">-->
+<!--  <link rel="preconnect" href="https://cdn.jsdelivr.net">-->
+
+  <title>Boundary-Aware Instance Segmentation in Microscopy Imaging</title>
+
+  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
+<!--  <link rel="apple-touch-icon" href="static/images/favicon.ico">-->
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <link rel="preload" href="static/css/bulma-carousel.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/bulma-slider.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/fontawesome.all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+  <noscript>
+    <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  </noscript>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/bulma-carousel.min.js"></script>
+  <script defer src="static/js/bulma-slider.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "Boundary-Aware Instance Segmentation in Microscopy Imaging",
+    "description": "Prompt-free cell instance segmentation via signed distance functions and a boundary-aware Modified Hausdorff loss for improved separation of touching cells in dense microscopy.",
+    "author": [
+      {"@type": "Person", "name": "Thomas Mendelson"},
+      {"@type": "Person", "name": "Joshua Francois"},
+      {"@type": "Person", "name": "Galit Lahav"},
+      {"@type": "Person", "name": "Tammy Riklin Raviv"}
+    ],
+    "datePublished": "2026-03-24",
+  "publisher": {
+    "@type": "Organization",
+    "name": "arXiv"
+  },
+  "isPartOf": {
+    "@type": "Event",
+    "name": "IEEE International Symposium on Biomedical Imaging (ISBI 2026, accepted)"
+  },
+  "url": "https://YOUR_USERNAME.github.io/YOUR_REPO/",
+  "sameAs": "https://arxiv.org/abs/2603.21206",
+  "image": "https://YOUR_USERNAME.github.io/YOUR_REPO/static/images/social_preview.png",
+  "keywords": ["Cell Instance Segmentation", "Microscopy Imaging", "Signed Distance Function", "Modified Hausdorff Distance", "Boundary-Aware Loss"],
+  "isAccessibleForFree": true,
+  "mainEntity": {
+    "@type": "WebPage",
+    "@id": "https://YOUR_USERNAME.github.io/YOUR_REPO/"
+  }
+  }
+  </script>
+</head>
+<body>
+
+<main id="main-content">
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">Boundary-Aware Instance Segmentation in Microscopy Imaging</h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="#" target="_blank">Thomas Mendelson</a><sup>1</sup>,<!-- todo -->
+              </span>
+              <span class="author-block">
+                <a href="https://scholar.google.com/citations?hl=iw&user=9o9bijYAAAAJ" target="_blank">Joshua Francois</a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="#" target="_blank">Galit Lahav</a><sup>2</sup>, <!-- todo -->
+              </span>
+              <span class="author-block">
+                <a href="https://scholar.google.com/citations?user=xt7uyAEAAAAJ&hl=iw&oi=ao" target="_blank">Tammy Riklin Raviv</a><sup>1</sup>
+              </span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <sup>1</sup>School of Electrical and Computer Engineering, Ben-Gurion University of the Negev<br>
+                <sup>2</sup>Department of Systems Biology, Harvard Medical School<br>
+                <strong>IEEE ISBI 2026</strong>
+              </span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- Arxiv PDF link -->
+                <span class="link-block">
+                  <a href="static/pdfs/paper.pdf" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+
+                <!-- Github link -->
+                <span class="link-block">
+                  <a href="https://github.com/ThomasMendelson/BAISeg.git" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fab fa-github"></i></span>
+                    <span>Code</span>
+                  </a>
+                </span>
+
+                <!-- ArXiv abstract Link -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/2603.21206" target="_blank" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="ai ai-arxiv"></i></span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+
+<!--                <span class="link-block">-->
+<!--                  <a href="static/pdfs/poster.pdf" target="_blank" class="external-link button is-normal is-rounded is-dark">-->
+<!--                    <span class="icon"><i class="fas fa-image"></i></span>-->
+<!--                    <span>Poster</span>-->
+<!--                  </a>-->
+<!--                </span>-->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Figure -->
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <div class="hero-body">
+        <div class="has-text-centered">
+          <img src="static/images/training_pipeline_with_element-wise.png" alt="Training Framework Overview" style="max-width: 100%; height: auto;" loading="lazy"/>
+        </div>
+
+        <div class="columns is-centered has-text-centered" style="margin-top: 2rem;">
+          <div class="column is-four-fifths">
+            <h2 class="title is-3">Key Contributions</h2>
+            <div class="content has-text-justified">
+              <p>
+                We propose a boundary-aware instance segmentation framework that predicts signed distance functions and directly optimizes boundary alignment via a Modified Hausdorff Distance loss:
+              </p>
+              <ul>
+                <li><strong>SDF-based representation:</strong> predicts signed distance functions instead of binary masks for geometry-aware boundary modeling.</li>
+                <li><strong>Learned sigmoid mapping:</strong> converts SDF predictions into probability maps and explicit soft boundary representations.</li>
+                <li><strong>Boundary-aware MHD loss:</strong> directly penalizes boundary misalignment and improves separation of touching cells.</li>
+                <li><strong>Prompt-free framework:</strong> achieves strong instance segmentation performance without prompts or post-processing.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- End main figure -->
+
+<!-- Paper abstract -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Accurate delineation of individual cells in microscopy videos is essential for studying cellular dynamics, yet separating touching or overlapping instances remains a persistent challenge. Although foundation-model for segmentation such as SAM have broadened the accessibility of image segmentation, they still struggle to separate nearby cell instances in dense microscopy scenes without extensive prompting.
+            </p>
+            <p>
+              We propose a prompt-free, boundary-aware instance segmentation framework that predicts signed distance functions (SDFs) instead of binary masks, enabling smooth and geometry-consistent modeling of cell contours. A learned sigmoid mapping converts SDFs into probability maps, yielding sharp boundary localization and robust separation of adjacent instances. Training is guided by a unified Modified Hausdorff Distance (MHD) loss that integrates region- and boundary-based terms.
+            </p>
+            <p>
+              Evaluations on both public and private high-throughput microscopy datasets demonstrate improved boundary accuracy and instance-level performance compared to recent SAM-based and foundation-model approaches.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- End paper abstract -->
+
+<!-- Motivation -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Motivation</h2>
+          <div class="content has-text-justified">
+            <p>
+              In dense microscopy scenes, the main bottleneck is not foreground–background segmentation, but the accurate separation of nearby or touching cells. Standard pixel-wise objectives such as binary cross-entropy fail to capture subtle boundary discrepancies, while prompt-driven foundation models struggle when precise boundary localization is required.
+            </p>
+            <p>
+              Our goal is to explicitly encode cell geometry and directly optimize boundary fidelity during training, rather than relying on post-processing or heuristic instance-splitting.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- End motivation -->
+
+<!-- Method -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Method</h2>
+          <div class="content has-text-justified">
+            <p>
+              Our framework builds on a U-Net backbone and predicts a continuous <strong>Signed Distance Function (SDF)</strong> instead of a binary mask, enabling smooth and geometry-consistent modeling of cell contours. The predicted SDF is transformed through a <strong>learned sigmoid mapping</strong>, producing probabilistic segmentations and differentiable soft boundaries.
+            </p>
+            <p>
+              To enforce accurate instance separation, we introduce a <strong>boundary-aware Modified Hausdorff Distance (MHD)</strong> loss. The loss operates directly on soft boundary representations derived from the SDF and penalizes contour misalignment in both directions (GT→Pred and Pred→GT). This formulation encourages precise boundary localization and eliminates the need for heuristic post-processing.
+            </p>
+            <div class="has-text-centered" style="margin: 2rem 0;">
+              <img src="static/images/method_overview.png" alt="Method overview" style="max-width: 100%; height: auto;" loading="lazy"/>
+              <h3 class="subtitle has-text-centered" style="margin-top: 1rem;">
+                Training pipeline: SDF prediction, learned mapping, soft boundary extraction, and boundary-aware MHD supervision.
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- End method -->
+
+<!-- Experiments and Results -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Experiments and Results</h2>
+          <div class="content has-text-justified">
+
+            <p>
+              We evaluate on four datasets from the <strong>Cell Segmentation Benchmark</strong> (Fluo-N2DH-SIM+, Fluo-N2DL-HeLa, Fluo-N2DH-GOWT1, and Fluo-C2DL-MSC) together with a private <strong>MCF7 human breast cancer spheroid</strong> dataset from Lahav Lab. The private dataset contains 7 spheroids and 539 2D slices, split into 377 training, 81 validation, and 81 test images.
+            </p>
+
+            <p>
+              Performance is measured using <strong>SEG</strong>, an instance-level segmentation accuracy metric. Our method achieves best or second-best performance across all datasets while remaining fully prompt-free.
+            </p>
+
+            <!-- Main Results Table -->
+            <div class="has-text-centered" style="margin: 2rem 0;">
+              <p style="font-size: 0.95rem; margin-bottom: 0.5rem;">
+                <strong>SAM (ViT-B):</strong> prompt-grid density <em>p</em> = 32 or <em>p</em> = 64.<br>
+                <em>&mu;SAM (<sup>*</sup>)</em> evaluated on 20 test images due to high inference cost.
+              </p>
+
+              <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+                <thead>
+                  <tr>
+                    <th>Method</th>
+                    <th>MCF7</th>
+                    <th>SIM+</th>
+                    <th>HeLa</th>
+                    <th>GOWT1</th>
+                    <th>MSC</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>U-Net</td>
+                    <td>.492(.120)</td>
+                    <td>.629(.254)</td>
+                    <td>.774(.026)</td>
+                    <td>.904(.025)</td>
+                    <td>.420(.194)</td>
+                  </tr>
+
+                  <tr>
+                    <td>SAM (p=32)</td>
+                    <td>.411(.177)</td>
+                    <td>.508(.256)</td>
+                    <td>.795(.042)</td>
+                    <td><u>.943(.019)</u></td>
+                    <td>.229(.140)</td>
+                  </tr>
+
+                  <tr>
+                    <td>SAM (p=64)</td>
+                    <td>.431(.182)</td>
+                    <td>.518(.243)</td>
+                    <td><strong>.917(.012)</strong></td>
+                    <td>.938(.015)</td>
+                    <td>.253(.141)</td>
+                  </tr>
+
+                  <tr>
+                    <td>&mu;SAM</td>
+                    <td>.517(.184)</td>
+                    <td><strong>.789(.104)<sup>*</sup></strong></td>
+                    <td>.867(.022)<sup>*</sup></td>
+                    <td>.843(.030)<sup>*</sup></td>
+                    <td><u>.713(.107)<sup>*</sup></u></td>
+                  </tr>
+
+                  <tr>
+                    <td>Cellpose</td>
+                    <td><u>.521(.106)</u></td>
+                    <td>.597(.206)</td>
+                    <td>.849(.044)</td>
+                    <td>.933(.026)</td>
+                    <td>.554(.175)</td>
+                  </tr>
+
+                  <tr>
+                    <td><strong>Ours</strong></td>
+                    <td><strong>.798(.093)</strong></td>
+                    <td><u>.788(.077)</u></td>
+                    <td><u>.892(.030)</u></td>
+                    <td><strong>.944(.018)</strong></td>
+                    <td><strong>.775(.102)</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Ablation Study -->
+            <div class="has-text-centered" style="margin: 2rem 0;">
+              <table class="table is-bordered is-narrow is-hoverable">
+                <thead>
+                  <tr>
+                    <th>L<sub>CE</sub></th>
+                    <th>L<sub>LSE</sub></th>
+                    <th>L<sub>LMHD</sub></th>
+                    <th>L<sub>RMHD</sub></th>
+                    <th>GOWT1</th>
+                    <th>MSC</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>✓</td><td>✓</td><td></td><td></td><td><u>.901(.180)</u></td><td><u>.759(.123)</u></td></tr>
+                  <tr><td>✓</td><td>✓</td><td>✓</td><td></td><td>.882(.045)</td><td>.634(.147)</td></tr>
+                  <tr><td>✓</td><td>✓</td><td></td><td>✓</td><td>.899(.020)</td><td>.689(.123)</td></tr>
+                  <tr><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td><strong>.944(.018)</strong></td><td><strong>.775(.102)</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- End experiments and results -->
+
+<!-- Conclusion Section -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Conclusion</h2>
+          <div class="content has-text-justified">
+            <p>
+              We introduced a boundary-aware instance segmentation framework that predicts continuous SDFs and optimizes a differentiable MHD loss to achieve precise boundary localization and reliable separation of closely packed cells. The proposed method achieves consistent, competitive performance across both public and private microscopy datasets while remaining fully prompt-free.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- End Conclusion section -->
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <div class="bibtex-header">
+        <h2 class="title">BibTeX</h2>
+        <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
+          <i class="fas fa-copy"></i>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+      <pre id="bibtex-code"><code>@inproceedings{mendelson2026boundary,
+        title     = {Boundary-Aware Instance Segmentation in Microscopy Imaging},
+        author    = {Mendelson, Thomas and Francois, Joshua and Lahav, Galit and Riklin-Raviv, Tammy},
+        booktitle = {Proceedings of the IEEE International Symposium on Biomedical Imaging (ISBI)},
+        year      = {2026},
+        note      = {Accepted for oral presentation at IEEE ISBI 2026},
+        url       = {https://arxiv.org/abs/2603.21206}
+      }</code></pre>
+    </div>
+  </section>
+<!--End BibTex citation -->
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>, adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+              You are free to borrow the source code of this website, provided that you link back to the original template in the footer.<br>
+              This website is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</main>
+</body>
+</html>
